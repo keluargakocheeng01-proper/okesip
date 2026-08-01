@@ -924,7 +924,10 @@
           </ul>
         </section>
       </div>
-      <div class="container footer-bottom">© <span id="current-year"></span> Sekretariat DPRD Provinsi Nusa Tenggara Timur</div>
+      <div class="container footer-bottom">
+        © <span id="current-year"></span> Sekretariat DPRD Provinsi Nusa Tenggara Timur
+        <span class="footer-visitors">| Pengunjung: <span id="visitor-count">0</span></span>
+      </div>
     </footer>
 
     <script>
@@ -2388,7 +2391,17 @@
         }
       });
 
+      const updateVisitorCount = () => {
+        const storageKey = 'okesipVisitorCount';
+        const storedCount = Number(localStorage.getItem(storageKey) || 0);
+        const newCount = storedCount + 1;
+        localStorage.setItem(storageKey, String(newCount));
+        const visitorCountEl = document.querySelector('#visitor-count');
+        if (visitorCountEl) visitorCountEl.textContent = newCount.toLocaleString('id-ID');
+      };
+
       document.querySelector('#current-year').textContent = new Date().getFullYear();
+      updateVisitorCount();
 
       // Grafik Status Ranperda
       let chartPengusul, chartStatus;
