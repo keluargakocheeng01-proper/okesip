@@ -2495,7 +2495,8 @@
               // Kolom 4: Status (data-progress)
               const statusButton = cells[3].querySelector('.status-button');
               if (statusButton) {
-              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
+                const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
+                const stages = normalizeStages(progressStr);
                 
                 // Hitung status berdasarkan stages
                 let statusIndex = stages.length - 1;
