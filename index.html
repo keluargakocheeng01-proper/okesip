@@ -468,7 +468,7 @@
             
             <div class="chart-container">
               <div class="chart-wrapper">
-                <h3>Pengusul Ranperda (Pemerintah vs DPRD)</h3>
+                <h3>Pengusul Ranperda</h3>
                 <div class="chart-canvas">
                   <canvas id="chart-pengusul"></canvas>
                 </div>
@@ -1789,7 +1789,7 @@
         "Ranperda tentang Tanggung Jawab Sosial dan Lingkungan Perusahaan": {
           Perencanaan: [
             {
-              label: "Dokumen Perencanaan 18",
+              label: "Dokumen Perencanaan",
               note: "Dokumen perencanaan untuk Ranperda tentang Tanggung Jawab Sosial dan Lingkungan Perusahaan.",
               url: "https://docs.google.com/document/d/example18-perencanaan/edit"
             }
@@ -2471,66 +2471,19 @@
       let chartPengusul, chartStatus;
       
       const initializeCharts = () => {
-        // Mengumpulkan data dari tabel
-        const getChartData = (year) => {
-          const pageId = year === '2025' ? 'Informasi2025' : 'Informasi2026';
-          const page = document.getElementById(pageId);
-          if (!page) return { pengusul: {}, status: {} };
-          
-          const tableBody = page.querySelector('.ranperda-table-body');
-          if (!tableBody) return { pengusul: {}, status: {} };
-          
-          const rows = tableBody.querySelectorAll('tr');
-          const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
-          const status = { 'Perencanaan': 0, 'Penyusunan': 0, 'Pembahasan': 0, 'Penetapan': 0, 'Pengundangan': 0 };
-          
-          rows.forEach((row) => {
-            const cells = row.querySelectorAll('td');
-            if (cells.length >= 4) {
-              // Kolom 3: Pengusul
-              const pengusulCell = cells[2].textContent.trim();
-              if (pengusulCell === 'Pemerintah Daerah') pengusul['Pemerintah Daerah']++;
-              else if (pengusulCell === 'DPRD') pengusul['DPRD']++;
-              
-              // Kolom 4: Status (data-progress)
-              const statusButton = cells[3].querySelector('.status-button');
-              if (statusButton) {
-                const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
-                const stages = normalizeStages(progressStr);
-                
-                // Hitung status berdasarkan stages
-                let statusIndex = stages.length - 1;
-                for (let i = stages.length - 1; i >= 0; i--) {
-                  if (stages[i] !== 'done') {
-                    statusIndex = i;
-                    break;
-                  }
-                }
-                
-                if (statusIndex === 0) status['Perencanaan']++;
-                else if (statusIndex === 1) status['Penyusunan']++;
-                else if (statusIndex === 2) status['Pembahasan']++;
-                else if (statusIndex === 3) status['Penetapan']++;
-                else if (statusIndex === 4) status['Pengundangan']++;
-                else status['Pengundangan']++; // Jika semua done
-              }
-            }
-          });
-          
-          return { pengusul, status };
-        };
+        const defaultYear = document.querySelector('[data-chart-year].active')?.dataset.chartYear || '2025';
+        const currentData = getChartData(defaultYear);
         
         // Inisialisasi Chart Pengusul (Pie Chart)
         const ctxPengusul = document.getElementById('chart-pengusul');
         if (chartPengusul) chartPengusul.destroy();
         
-        const data2025 = getChartData(2025);
         chartPengusul = new Chart(ctxPengusul, {
           type: 'doughnut',
           data: {
             labels: ['Pemerintah Daerah', 'DPRD'],
             datasets: [{
-              data: [data2025.pengusul['Pemerintah Daerah'], data2025.pengusul['DPRD']],
+              data: [currentData.pengusul['Pemerintah Daerah'], currentData.pengusul['DPRD']],
               backgroundColor: ['#0f4c81', '#f0c96b'],
               borderColor: '#fff',
               borderWidth: 2
@@ -2559,16 +2512,10 @@
         chartStatus = new Chart(ctxStatus, {
           type: 'bar',
           data: {
-            labels: ['Perencanaan', 'Penyusunan', 'Pembahasan', 'Penetapan', 'Pengundangan'],
+            labels: currentData.labels,
             datasets: [{
               label: 'Jumlah Ranperda',
-              data: [
-                data2025.status['Perencanaan'],
-                data2025.status['Penyusunan'],
-                data2025.status['Pembahasan'],
-                data2025.status['Penetapan'],
-                data2025.status['Pengundangan']
-              ],
+              data: currentData.labels.map((label) => currentData.status[label]),
               backgroundColor: '#0f4c81',
               borderColor: '#0b355a',
               borderWidth: 1
@@ -2616,13 +2563,8 @@
           chartPengusul.update();
           
           // Update Chart Status
-          chartStatus.data.datasets[0].data = [
-            data.status['Perencanaan'],
-            data.status['Penyusunan'],
-            data.status['Pembahasan'],
-            data.status['Penetapan'],
-            data.status['Pengundangan']
-          ];
+          chartStatus.data.labels = data.labels;
+          chartStatus.data.datasets[0].data = data.labels.map((label) => data.status[label]);
           chartStatus.update();
         });
       });
@@ -2634,7 +2576,7 @@
         if (!page) return { pengusul: {}, status: {} };
         
         const tableBody = page.querySelector('.ranperda-table-body');
-        if (!tableBody) return { pengusul: {}, status: {} };
+        if (!tableBody) return { pengusul: {}, status: {}, labels: stageLabels };
         
         const rows = tableBody.querySelectorAll('tr');
         const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
@@ -2651,29 +2593,17 @@
             // Kolom 4: Status (data-progress)
             const statusButton = cells[3].querySelector('.status-button');
             if (statusButton) {
-              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
+              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending';
               const stages = normalizeStages(progressStr);
               
-              // Hitung status berdasarkan stages
-              let statusIndex = stages.length - 1;
-              for (let i = stages.length - 1; i >= 0; i--) {
-                if (stages[i] !== 'done') {
-                  statusIndex = i;
-                  break;
-                }
-              }
-              
-              if (statusIndex === 0) status['Perencanaan']++;
-              else if (statusIndex === 1) status['Penyusunan']++;
-              else if (statusIndex === 2) status['Pembahasan']++;
-              else if (statusIndex === 3) status['Penetapan']++;
-              else if (statusIndex === 4) status['Pengundangan']++;
-              else status['Pengundangan']++; // Jika semua done
+              const statusIndex = stages.findIndex((state) => state !== 'done');
+              const label = stageLabels[statusIndex === -1 ? stageLabels.length - 1 : statusIndex];
+              status[label] = (status[label] || 0) + 1;
             }
           }
         });
         
-        return { pengusul, status };
+        return { pengusul, status, labels: stageLabels };
       };
       
       // Inisialisasi grafik saat halaman dimuat
