@@ -1110,16 +1110,17 @@
       const stageLabels = ['Perencanaan', 'Penyusunan', 'Pembahasan', 'Penetapan', 'Pengundangan'];
 
       const normalizeStages = (progressStr) => {
-        const stages = (progressStr || 'pending,pending,pending,pending,pending').split(',');
-        if (stages.length < stageLabels.length) {
-          return [...stages, ...Array(stageLabels.length - stages.length).fill('pending')];
+        const stages = (typeof progressStr === 'string' ? progressStr : progressStr?.join(',')) || 'pending,pending,pending,pending,pending';
+        const stageArray = stages.split(',');
+        if (stageArray.length < stageLabels.length) {
+          return [...stageArray, ...Array(stageLabels.length - stageArray.length).fill('pending')];
         }
-        return stages.slice(0, stageLabels.length);
+        return stageArray.slice(0, stageLabels.length);
       };
 
-      const renderProgressTracker = (trackerElement, stages) => {
+      const renderProgressTracker = (trackerElement, stageInput) => {
         if (!trackerElement) return;
-        const normalizedStages = normalizeStages(stages);
+        const normalizedStages = Array.isArray(stageInput) ? normalizeStages(stageInput.join(',')) : normalizeStages(stageInput);
         const activeIndex = normalizedStages.findIndex((state) => state !== 'done');
         trackerElement.innerHTML = normalizedStages.map((state, index) => {
           let icon;
@@ -2183,13 +2184,12 @@
               if (labelElement) labelElement.textContent = documentLabel;
               documentCard.href = documentUrl;
             }
-            const stages = normalizeStages(progressValue);
             if (progressPanel) {
               progressPanel.dataset.currentRanperda = title;
             }
-            renderProgressTracker(progressTracker, stages);
+            renderProgressTracker(progressTracker, progressValue);
             if (progressPanel) {
-              const activeStage = getStageLabel(button.dataset.progress);
+              const activeStage = getStageLabel(progressValue);
               updateStageSelection(progressPanel, activeStage);
             }
             progressPanel?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2243,8 +2243,7 @@
               // Kolom 4: Status (data-progress)
               const statusButton = cells[3].querySelector('.status-button');
               if (statusButton) {
-                const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending';
-                const stages = normalizeStages(progressStr);
+              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
                 
                 // Hitung status berdasarkan stages
                 let statusIndex = stages.length - 1;
@@ -2314,7 +2313,8 @@
                 data2025.status['Perencanaan'],
                 data2025.status['Penyusunan'],
                 data2025.status['Pembahasan'],
-                data2025.status['Penetapan']
+                data2025.status['Penetapan'],
+                data2025.status['Pengundangan']
               ],
               backgroundColor: '#0f4c81',
               borderColor: '#0b355a',
@@ -2367,7 +2367,8 @@
             data.status['Perencanaan'],
             data.status['Penyusunan'],
             data.status['Pembahasan'],
-            data.status['Penetapan']
+            data.status['Penetapan'],
+            data.status['Pengundangan']
           ];
           chartStatus.update();
         });
@@ -2384,7 +2385,7 @@
         
         const rows = tableBody.querySelectorAll('tr');
         const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
-        const status = { 'Perencanaan': 0, 'Penyusunan': 0, 'Pembahasan': 0, 'Penetapan': 0 };
+        const status = { 'Perencanaan': 0, 'Penyusunan': 0, 'Pembahasan': 0, 'Penetapan': 0, 'Pengundangan': 0 };
         
         rows.forEach((row) => {
           const cells = row.querySelectorAll('td');
@@ -2397,8 +2398,8 @@
             // Kolom 4: Status (data-progress)
             const statusButton = cells[3].querySelector('.status-button');
             if (statusButton) {
-              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending';
-              const stages = progressStr.split(',');
+              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending,pending';
+              const stages = normalizeStages(progressStr);
               
               // Hitung status berdasarkan stages
               let statusIndex = stages.length - 1;
@@ -2413,7 +2414,8 @@
               else if (statusIndex === 1) status['Penyusunan']++;
               else if (statusIndex === 2) status['Pembahasan']++;
               else if (statusIndex === 3) status['Penetapan']++;
-              else status['Penetapan']++; // Jika semua done
+              else if (statusIndex === 4) status['Pengundangan']++;
+              else status['Pengundangan']++; // Jika semua done
             }
           }
         });
