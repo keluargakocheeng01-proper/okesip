@@ -2601,19 +2601,38 @@
         });
       });
       
+      const chartStatusDataByYear = {
+        '2025': {
+          Perencanaan: 17,
+          Penyusunan: 17,
+          Pembahasan: 17,
+          Penetapan: 17,
+          Pengundangan: 14
+        },
+        '2026': {
+          Perencanaan: 11,
+          Penyusunan: 6,
+          Pembahasan: 5,
+          Penetapan: 5,
+          Pengundangan: 1
+        }
+      };
+
       // Helper function untuk mendapatkan data
       const getChartData = (year) => {
         const pageId = year === '2025' ? 'Informasi2025' : 'Informasi2026';
         const page = document.getElementById(pageId);
-        if (!page) return { pengusul: {}, status: {} };
+        const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
+        const status = chartStatusDataByYear[year]
+          ? { ...chartStatusDataByYear[year] }
+          : { Perencanaan: 0, Penyusunan: 0, Pembahasan: 0, Penetapan: 0, Pengundangan: 0 };
+
+        if (!page) return { pengusul, status, labels: stageLabels };
         
         const tableBody = page.querySelector('.ranperda-table-body');
-        if (!tableBody) return { pengusul: {}, status: {}, labels: stageLabels };
+        if (!tableBody) return { pengusul, status, labels: stageLabels };
         
         const rows = tableBody.querySelectorAll('tr');
-        const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
-        const status = { 'Perencanaan': 0, 'Penyusunan': 0, 'Pembahasan': 0, 'Penetapan': 0, 'Pengundangan': 0 };
-        
         rows.forEach((row) => {
           const cells = row.querySelectorAll('td');
           if (cells.length >= 4) {
@@ -2621,17 +2640,6 @@
             const pengusulCell = cells[2].textContent.trim();
             if (pengusulCell === 'Pemerintah Daerah') pengusul['Pemerintah Daerah']++;
             else if (pengusulCell === 'DPRD') pengusul['DPRD']++;
-            
-            // Kolom 4: Status (data-progress)
-            const statusButton = cells[3].querySelector('.status-button');
-            if (statusButton) {
-              const progressStr = statusButton.dataset.progress || 'pending,pending,pending,pending';
-              const stages = normalizeStages(progressStr);
-              
-              const statusIndex = stages.findIndex((state) => state !== 'done');
-              const label = stageLabels[statusIndex === -1 ? stageLabels.length - 1 : statusIndex];
-              status[label] = (status[label] || 0) + 1;
-            }
           }
         });
         
