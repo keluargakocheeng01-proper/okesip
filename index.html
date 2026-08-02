@@ -42,7 +42,6 @@
         color: var(--ink);
         background: #f7fbfc;
         line-height: 1.5;
-        padding-right: 320px;
       }
       a { color: inherit; }
       button { font: inherit; }
@@ -56,11 +55,12 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
       }
       .info-sidebar {
-        position: fixed;
-        top: 112px;
-        right: 24px;
-        z-index: 18;
-        width: min(270px, calc(100vw - 40px));
+        position: sticky;
+        top: 108px;
+        align-self: start;
+        z-index: 8;
+        width: min(270px, 100%);
+        margin-left: auto;
       }
       .info-sidebar__card {
         padding: 20px;
@@ -445,7 +445,6 @@
       .footer-bottom { padding-top: 19px; padding-bottom: 24px; border-top: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.58); font-size: 12px; }
 
       @media (max-width: 800px) {
-        body { padding-right: 0; }
         .service-grid { grid-template-columns: 1fr; }
         .service-card { min-height: 170px; }
         .footer-grid { grid-template-columns: 1fr 1fr; }
