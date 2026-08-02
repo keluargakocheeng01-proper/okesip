@@ -194,10 +194,36 @@
       .stage-h .line { position: absolute; top: 16px; left: calc(-50% + 17px); width: calc(100% - 34px); height: 2px; background: #cfdbe3; }
       .stage-h:first-child .line { display: none; }
       .stage-h.done .node { color: #fff; background: var(--blue); }
-      .stage-h.active .node { color: #fff; background: var(--gold); }
+      .stage-h.active .node {
+        color: #fff;
+        background: linear-gradient(135deg, #f5b13d 0%, #0f4c81 100%);
+        box-shadow: 0 0 0 4px rgba(245, 177, 61, 0.18);
+        animation: stagePulse 1.25s ease-in-out infinite;
+      }
+      .stage-h.active .line {
+        background: linear-gradient(90deg, var(--blue), #f5b13d);
+        animation: stageLineGlow 1.25s ease-in-out infinite;
+      }
+      .stage-h.active .stage-label {
+        color: var(--blue);
+        font-weight: 800;
+      }
       .stage-h.pending .node { color: #95a4ad; background: #eef4f7; }
-      .stage-h.done .line, .stage-h.active .line { background: var(--blue); }
+      .stage-h.done .line { background: var(--blue); }
+      .stage-h.active[data-stage="Perencanaan"] .node { background: linear-gradient(135deg, #f59e0b 0%, #0f4c81 100%); }
+      .stage-h.active[data-stage="Penyusunan"] .node { background: linear-gradient(135deg, #14b8a6 0%, #0f4c81 100%); }
+      .stage-h.active[data-stage="Pembahasan"] .node { background: linear-gradient(135deg, #8b5cf6 0%, #0f4c81 100%); }
+      .stage-h.active[data-stage="Penetapan"] .node { background: linear-gradient(135deg, #ef4444 0%, #0f4c81 100%); }
+      .stage-h.active[data-stage="Pengundangan"] .node { background: linear-gradient(135deg, #3b82f6 0%, #0f4c81 100%); }
       .stage-label { display: block; margin-top: 2px; }
+      @keyframes stagePulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 177, 61, 0.24); }
+        50% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(245, 177, 61, 0.12); }
+      }
+      @keyframes stageLineGlow {
+        0%, 100% { opacity: 0.8; filter: brightness(1); }
+        50% { opacity: 1; filter: brightness(1.2); }
+      }
       .ranperda-table-wrap { margin-top: 20px; overflow-x: auto; }
       .ranperda-search { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
       .ranperda-search i { color: var(--blue); }
@@ -1141,13 +1167,19 @@
         if (!trackerElement) return;
         const normalizedStages = Array.isArray(stageInput) ? normalizeStages(stageInput.join(',')) : normalizeStages(stageInput);
         const activeIndex = normalizedStages.findIndex((state) => state !== 'done');
-        trackerElement.innerHTML = normalizedStages.map((state, index) => {
+        const resolvedStates = normalizedStages.map((state, index) => {
+          if (state === 'done') return 'done';
+          if (activeIndex !== -1 && index === activeIndex) return 'active';
+          return 'pending';
+        });
+
+        trackerElement.innerHTML = resolvedStates.map((state, index) => {
           let icon;
           if (state === 'done') icon = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
-          else if (index === (activeIndex === -1 ? normalizedStages.length - 1 : activeIndex)) icon = '<i class="fa-solid fa-rotate-right" aria-hidden="true"></i>';
+          else if (state === 'active') icon = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>';
           else icon = '<i class="fa-regular fa-circle" aria-hidden="true"></i>';
           return `
-            <div class="stage-h ${state}">
+            <div class="stage-h ${state}" data-stage="${stageLabels[index]}">
               ${index > 0 ? '<span class="line"></span>' : ''}
               <span class="node">${icon}</span>
               <span class="stage-label">${stageLabels[index]}</span>
