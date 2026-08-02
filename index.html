@@ -95,6 +95,7 @@
       .info-sidebar__clock-group {
         display: grid;
         gap: 10px;
+        grid-template-columns: 1fr;
       }
       .info-sidebar__clock {
         padding: 12px 14px;
@@ -115,6 +116,9 @@
         color: var(--blue);
         font-size: 20px;
         letter-spacing: .02em;
+      }
+      @media (min-width: 520px) {
+        .info-sidebar__clock-group { grid-template-columns: repeat(3, 1fr); }
       }
       .header-top {
         display: flex;
@@ -579,6 +583,10 @@
           <div class="info-sidebar__clock">
             <span class="info-sidebar__clock-label">WITA</span>
             <strong id="sidebar-clock-wita">--:--:--</strong>
+          </div>
+          <div class="info-sidebar__clock">
+            <span class="info-sidebar__clock-label">WIT</span>
+            <strong id="sidebar-clock-wit">--:--:--</strong>
           </div>
         </div>
       </div>
@@ -2633,10 +2641,12 @@
         const sidebarDate = document.getElementById('sidebar-date');
         const sidebarClockWib = document.getElementById('sidebar-clock-wib');
         const sidebarClockWita = document.getElementById('sidebar-clock-wita');
+        const sidebarClockWit = document.getElementById('sidebar-clock-wit');
 
         if (sidebarDate) sidebarDate.textContent = dateFormatter.format(now);
         if (sidebarClockWib) sidebarClockWib.textContent = timeFormatter('Asia/Jakarta').format(now);
         if (sidebarClockWita) sidebarClockWita.textContent = timeFormatter('Asia/Makassar').format(now);
+        if (sidebarClockWit) sidebarClockWit.textContent = timeFormatter('Asia/Jayapura').format(now);
       };
 
       document.querySelector('#current-year').textContent = new Date().getFullYear();
