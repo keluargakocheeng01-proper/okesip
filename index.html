@@ -25,6 +25,7 @@
       :root {
         --blue: #0f4c81;
         --blue-dark: #0b355a;
+        --header-height: 86px;
         --blue-light: #7fb4ce;
         --gold: #f0c96b;
         --paper: #f8fbfd;
@@ -46,6 +47,9 @@
       a { color: inherit; }
       button { font: inherit; }
       .container { width: min(100% - 40px, 1120px); margin-inline: auto; }
+      @media (min-width: 1024px) {
+        .container { margin-right: 320px; }
+      }
 
       .site-header {
         position: sticky;
@@ -55,12 +59,11 @@
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
       }
       .info-sidebar {
-        position: sticky;
-        top: 108px;
-        align-self: start;
-        z-index: 8;
-        width: min(270px, 100%);
-        margin-left: auto;
+        position: fixed;
+        top: calc(var(--header-height) + 12px);
+        right: 24px;
+        z-index: 9;
+        width: min(270px, calc(100vw - 48px));
       }
       .info-sidebar__card {
         padding: 20px;
@@ -539,23 +542,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <aside class="info-sidebar" aria-label="Kalender dan jam">
-      <div class="info-sidebar__card">
-        <div class="info-sidebar__title"><i class="fa-solid fa-calendar-days"></i> Kalender & Jam</div>
-        <div class="info-sidebar__date" id="sidebar-date">Loading...</div>
-        <div class="info-sidebar__clock-group">
-          <div class="info-sidebar__clock">
-            <span class="info-sidebar__clock-label">WIB</span>
-            <strong id="sidebar-clock-wib">--:--:--</strong>
-          </div>
-          <div class="info-sidebar__clock">
-            <span class="info-sidebar__clock-label">WITA</span>
-            <strong id="sidebar-clock-wita">--:--:--</strong>
-          </div>
-        </div>
-      </div>
-    </aside>
-
     <header class="site-header">
       <div class="container header-top">
         <a class="brand" href="#beranda" data-page-link="beranda">
@@ -581,6 +567,22 @@
       </div>
     </header>
 
+    <aside class="info-sidebar" aria-label="Kalender dan jam">
+      <div class="info-sidebar__card">
+        <div class="info-sidebar__title"><i class="fa-solid fa-calendar-days"></i> Kalender & Jam</div>
+        <div class="info-sidebar__date" id="sidebar-date">Loading...</div>
+        <div class="info-sidebar__clock-group">
+          <div class="info-sidebar__clock">
+            <span class="info-sidebar__clock-label">WIB</span>
+            <strong id="sidebar-clock-wib">--:--:--</strong>
+          </div>
+          <div class="info-sidebar__clock">
+            <span class="info-sidebar__clock-label">WITA</span>
+            <strong id="sidebar-clock-wita">--:--:--</strong>
+          </div>
+        </div>
+      </div>
+    </aside>
 
     <main>
       <section id="beranda" class="page hero" aria-labelledby="beranda-title">
