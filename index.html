@@ -2787,15 +2787,15 @@
           Perencanaan: 17,
           Penyusunan: 17,
           Pembahasan: 17,
-          Penetapan: 17,
-          Pengundangan: 14
+          'Persetujuan Bersama': 17,
+          'Penetapan dan Pengundangan': 14
         },
         '2026': {
           Perencanaan: 11,
           Penyusunan: 6,
           Pembahasan: 5,
-          Penetapan: 5,
-          Pengundangan: 1
+          'Persetujuan Bersama': 5,
+          'Penetapan dan Pengundangan': 1
         }
       };
 
@@ -2806,7 +2806,7 @@
         const pengusul = { 'Pemerintah Daerah': 0, 'DPRD': 0 };
         const status = chartStatusDataByYear[year]
           ? { ...chartStatusDataByYear[year] }
-          : { Perencanaan: 0, Penyusunan: 0, Pembahasan: 0, Penetapan: 0, Pengundangan: 0 };
+          : { Perencanaan: 0, Penyusunan: 0, Pembahasan: 0, 'Persetujuan Bersama': 0, 'Penetapan dan Pengundangan': 0 };
 
         if (!page) return { pengusul, status, labels: stageLabels };
         
